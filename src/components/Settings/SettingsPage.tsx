@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  Settings, 
-  Save, 
-  RefreshCw, 
-  Store, 
-  DollarSign, 
-  Printer, 
-  Users, 
+import {
+  Settings,
+  Save,
+  RefreshCw,
+  Store,
+  DollarSign,
+  Printer,
+  Users,
   Shield,
   Bell,
   Palette,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useNotification } from '../../contexts/NotificationContext'; // Import useNotification
 import { BUSINESS_CONFIG } from '../../constants';
 
 interface BusinessSettings {
@@ -46,8 +47,9 @@ interface NotificationSettings {
 
 export const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
+  const { addNotification } = useNotification(); // Use the hook
   const [activeTab, setActiveTab] = useState<'business' | 'printer' | 'notifications' | 'users' | 'data'>('business');
-  
+
   const [businessSettings, setBusinessSettings] = useLocalStorage<BusinessSettings>('businessSettings', {
     businessName: BUSINESS_CONFIG.BUSINESS_NAME,
     businessAddress: BUSINESS_CONFIG.BUSINESS_ADDRESS,
@@ -90,6 +92,12 @@ export const SettingsPage: React.FC = () => {
     setNotificationSettings(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleSaveSettings = (settingsType: 'business' | 'printer' | 'notifications') => {
+    // The useLocalStorage hook already handles saving on state change,
+    // but we can add a confirmation or notification here if needed.
+    addNotification(`${settingsType.charAt(0).toUpperCase() + settingsType.slice(1)} settings saved!`, 'success'); // Use addNotification
+  };
+
   const exportData = () => {
     const data = {
       users,
@@ -119,7 +127,7 @@ export const SettingsPage: React.FC = () => {
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target?.result as string);
-        
+
         if (window.confirm('This will replace all current data. Are you sure?')) {
           if (data.users) localStorage.setItem('users', JSON.stringify(data.users));
           if (data.products) localStorage.setItem('products', JSON.stringify(data.products));
@@ -128,7 +136,7 @@ export const SettingsPage: React.FC = () => {
           if (data.businessSettings) setBusinessSettings(data.businessSettings);
           if (data.printerSettings) setPrinterSettings(data.printerSettings);
           if (data.notificationSettings) setNotificationSettings(data.notificationSettings);
-          
+
           alert('Data imported successfully! Please refresh the page.');
         }
       } catch (error) {
@@ -157,7 +165,7 @@ export const SettingsPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -171,14 +179,14 @@ export const SettingsPage: React.FC = () => {
       {/* Tabs */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="flex space-x-8 px-6">
+          <nav className="flex space-x-4 sm:space-x-6 lg:space-x-8 px-4 sm:px-6 lg:px-8 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  className={`flex-shrink-0 py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                       : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
@@ -192,13 +200,13 @@ export const SettingsPage: React.FC = () => {
           </nav>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6 lg:p-8">
           {/* Business Settings */}
           {activeTab === 'business' && (
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Business Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Business Name
@@ -302,6 +310,17 @@ export const SettingsPage: React.FC = () => {
                   </select>
                 </div>
               </div>
+
+              {/* Save Button for Business Settings */}
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={() => handleSaveSettings('business')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition-colors"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>Save Business Settings</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -363,6 +382,17 @@ export const SettingsPage: React.FC = () => {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Save Button for Printer Settings */}
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={() => handleSaveSettings('printer')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition-colors"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>Save Receipt Settings</span>
+                </button>
               </div>
             </div>
           )}
@@ -426,6 +456,17 @@ export const SettingsPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Save Button for Notification Settings */}
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={() => handleSaveSettings('notifications')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition-colors"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>Save Notification Settings</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -446,7 +487,7 @@ export const SettingsPage: React.FC = () => {
                           <p className="text-sm text-gray-500 dark:text-gray-400">{user.username} • {user.role}</p>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs ${
-                          user.isActive 
+                          user.isActive
                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         }`}>
@@ -465,7 +506,7 @@ export const SettingsPage: React.FC = () => {
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Data Backup & Restore</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
                     <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Export Data</h4>
                     <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">

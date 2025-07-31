@@ -7,7 +7,6 @@ import { LoginPage } from './components/Auth/LoginPage';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { ProductsPage } from './components/Products/ProductsPage';
 import { OrdersPage } from './components/Orders/OrdersPage';
-import { CustomersPage } from './components/Customers/CustomersPage';
 import { ReportsPage } from './components/Reports/ReportsPage';
 import { SettingsPage } from './components/Settings/SettingsPage';
 
@@ -48,13 +47,7 @@ const AppContent: React.FC = () => {
               </Layout>
             </ProtectedRoute>
           } />
-          <Route path="/customers" element={
-            <ProtectedRoute>
-              <Layout>
-                <CustomersPage />
-              </Layout>
-            </ProtectedRoute>
-          } />
+          
           <Route path="/reports" element={
             <ProtectedRoute>
               <Layout>

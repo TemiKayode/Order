@@ -41,7 +41,8 @@ export interface OrderItem {
   productId: string;
   productName: string;
   quantity: number;
-  price: number;
+  price: number; // Original product price
+  editablePrice?: number; // Price that can be edited by the user
   total: number;
 }
 
@@ -53,7 +54,9 @@ export interface Transaction {
   subtotal: number;
   posCharge: number;
   total: number;
-  paymentMethod: 'Cash' | 'POS';
+  paymentMethod: 'Cash' | 'POS' | 'Split'; // Added 'Split'
+  cashAmountPaid?: number; // New field for cash amount paid
+  posAmountPaid?: number; // New field for POS amount paid
   status: 'Completed' | 'Pending' | 'Cancelled';
   createdAt: string;
   createdBy: string;
